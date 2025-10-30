@@ -81,39 +81,67 @@ public class ClasseMetodos {
 		return movimentos;
 	}
 	
-	public void criaContasAtualizadas(ContaCorrente[] contas,MovimentoContas[] movimentos) throws IOException{
-		ContasAtualizadas atu[] = new ContasAtualizadas[contas.length];
-		
-		int contador=0;
-		for(ContaCorrente i:contas) {
-			atu[contador] = new ContasAtualizadas(i.codConta,i.nomeCliente,i.saldoConta,i.limiteConta,i.tipoConta);
-		}
-		
-		int cliente=0;
-		for(MovimentoContas i : movimentos) {
-			cliente = i.codConta;
-			if(i.tipoMovimento == 1) {
-				atu[cliente].saldoConta +=i.valorMovimentado;
-			}else if(i.tipoMovimento==2) {
-				atu[cliente].saldoConta -=i.valorMovimentado;
-			}
-			if(atu[cliente].saldoConta < i.valorMovimentado) {
-				atu[cliente].limiteConta = acharLimite(contas[cliente]);
-			}
-			
-		}
-		String fileName = "ContasAtualizadas.txt";
-		BufferedWriter w = new BufferedWriter(new FileWriter(fileName));
-		for(ContasAtualizadas i : atu) {
-			w.write(Integer.toString(i.codConta));w.newLine();
-			w.write(i.nomeCliente);w.newLine();
-			w.write(Double.toString(i.saldoConta));w.newLine();
-			w.write(Double.toString(i.limiteConta));w.newLine();
-			w.write(Integer.toString(i.tipoConta));w.newLine();
-		}
-		w.close();
-		
+	public void criaContasAtualizadas(ContaCorrente[] contas, MovimentoContas[] movimentos) throws IOException {
+	    ContasAtualizadas atu[] = new ContasAtualizadas[contas.length];
+
+	    int i = 0; 
+	    int j = 0; 
+	    int k = 0; 
+
+	    while (i < contas.length) {
+
+	        ContaCorrente c = contas[i];
+
+	        while (j < movimentos.length && movimentos[j].codConta == c.codConta) {
+	            MovimentoContas mov = movimentos[j];
+	            
+	            if (mov.status == 1) {
+	                j++;
+	                continue;
+	            }
+	            if (mov.status == 2) {
+	             
+	                if (mov.tipoMovimento == 1) {// CREDITO
+	                    c.saldoConta += mov.valorMovimentado;
+	                }
+	                else if (mov.tipoMovimento == 2) {// DEBITO
+	                    if (c.saldoConta >= mov.valorMovimentado) {
+	                        c.saldoConta -= mov.valorMovimentado;
+	                    } else {
+	                        double limite = acharLimite(c);
+	                        if (mov.valorMovimentado <= limite + c.saldoConta) {
+	                            c.saldoConta -= mov.valorMovimentado;
+	                            if (c.saldoConta < 0) {
+	                                double valorNegativo = Math.abs(c.saldoConta);
+	                                if (valorNegativo > limite) {
+	                                    c.saldoConta = -limite;
+	                                }
+	                            }
+	                        }
+	                    }
+	                }
+	            }
+
+	            j++; 
+	        }
+
+	        atu[k] = new ContasAtualizadas(c.codConta, c.nomeCliente, c.saldoConta, c.limiteConta, c.tipoConta);
+	        k++;
+
+	        i++;
+	    }
+
+	    BufferedWriter w = new BufferedWriter(new FileWriter("ContasAtualizadas.txt"));
+	    for (ContasAtualizadas a : atu) {
+	        w.write(Integer.toString(a.codConta)); w.newLine();
+	        w.write(a.nomeCliente); w.newLine();
+	        w.write(Double.toString(a.saldoConta)); w.newLine();
+	        w.write(Double.toString(a.limiteConta)); w.newLine();
+	        w.write(Integer.toString(a.tipoConta)); w.newLine();
+	    }
+	    w.close();
 	}
+
 	public double acharLimite(ContaCorrente c) {
 		double limite=0;
 		switch(c.tipoConta) {
