@@ -73,14 +73,34 @@ public class Main {
 					break;
 				case 2:
 					if(Integer.parseInt(JOptionPane.showInputDialog("Digite 1 para cadastrar agora, e 2 para puxar o arquivo")) == 1) {
-						m.cadastraContaCorrente();
+						m.cadastrarMovimento();
 						mov = m.lerMovimento();
 					}else {
 						mov = m.lerMovimento();
 					}
 					break;
 				case 3:
-					
+					m.criaContasAtualizadas(c, mov);
+					break;
+				case 4:
+					int opc2;
+					do {
+						opc2 = Integer.parseInt(JOptionPane.showInputDialog("Consultar Cadastros\n1-Contas Correntes\n2-Movimento\n3-Contas Atualizadas"));
+						switch(opc2) {
+							case 1:
+								m.verCorrente();
+								break;
+							case 2:
+								m.verMovimento();
+								break;
+							case 3:
+								m.verAtualizados();
+								break;
+							default:
+									
+								break;
+						}
+					}while(opc2!=9);
 					break;
 				case 9:
 					JOptionPane.showMessageDialog(null, "Fim");

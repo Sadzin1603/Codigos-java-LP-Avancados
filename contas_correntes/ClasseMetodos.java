@@ -81,22 +81,80 @@ public class ClasseMetodos {
 		return movimentos;
 	}
 	
-	public void criaContasAtualizadas(ContaCorrente[] contas,MovimentoContas[] movimentos) {
+	public void criaContasAtualizadas(ContaCorrente[] contas,MovimentoContas[] movimentos) throws IOException{
 		ContasAtualizadas atu[] = new ContasAtualizadas[contas.length];
-		int cont=0;
-		for(MovimentoContas i : movimentos) {
-			if(i.codConta == contas[cont].codConta) {
-				if(i.status ==1) {
-					int codConta = contas[cont].codConta;
-					String nomeCliente = contas[cont].nomeCliente;
-					double saldoConta = contas[cont].saldoConta;
-					double limiteConta = contas[cont].limiteConta;
-					int tipoConta = contas[cont].tipoConta;
-					atu[cont] = new ContasAtualizadas(codConta, nomeCliente,saldoConta,limiteConta,tipoConta);
-				}else {
-					
-				}
-			}
+		
+		int contador=0;
+		for(ContaCorrente i:contas) {
+			atu[contador] = new ContasAtualizadas(i.codConta,i.nomeCliente,i.saldoConta,i.limiteConta,i.tipoConta);
 		}
+		
+		int cliente=0;
+		for(MovimentoContas i : movimentos) {
+			cliente = i.codConta;
+			if(i.tipoMovimento == 1) {
+				atu[cliente].saldoConta +=i.valorMovimentado;
+			}else if(i.tipoMovimento==2) {
+				atu[cliente].saldoConta -=i.valorMovimentado;
+			}
+			if(atu[cliente].saldoConta < i.valorMovimentado) {
+				atu[cliente].limiteConta = acharLimite(contas[cliente]);
+			}
+			
+		}
+		String fileName = "ContasAtualizadas.txt";
+		BufferedWriter w = new BufferedWriter(new FileWriter(fileName));
+		for(ContasAtualizadas i : atu) {
+			w.write(Integer.toString(i.codConta));w.newLine();
+			w.write(i.nomeCliente);w.newLine();
+			w.write(Double.toString(i.saldoConta));w.newLine();
+			w.write(Double.toString(i.limiteConta));w.newLine();
+			w.write(Integer.toString(i.tipoConta));w.newLine();
+		}
+		w.close();
+		
+	}
+	public double acharLimite(ContaCorrente c) {
+		double limite=0;
+		switch(c.tipoConta) {
+			case 1:
+				limite=0;
+				break;
+			case 2:
+				limite = c.limiteConta;
+				break;
+			case 3:
+				limite = c.limiteConta + c.saldoConta*.5;
+				break;
+			case 4:
+				limite = c.limiteConta + c.saldoConta*.5;
+				break;
+		}
+		return limite;
+		
+	}
+	public void verCorrente()throws IOException {
+		String fileName="ContasCorrentes.txt";
+		BufferedReader r = new BufferedReader(new FileReader(fileName));
+		for(int i=0;i<5;i++) {
+			System.out.println(r.readLine());
+		}
+		r.close();
+	}
+	public void verMovimento()throws IOException {
+		String fileName="Movimentos.txt";
+		BufferedReader r = new BufferedReader(new FileReader(fileName));
+		for(int i=0;i<10;i++) {
+			System.out.println(r.readLine());
+		}
+		r.close();
+	}
+	public void verAtualizados()throws IOException {
+		String fileName="ContasAtualizadas.txt";
+		BufferedReader r = new BufferedReader(new FileReader(fileName));
+		for(int i=0;i<5;i++) {
+			System.out.println(r.readLine());
+		}
+		r.close();
 	}
 }
